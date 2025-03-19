@@ -14,15 +14,64 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
-  role     Role
+  id        String     @id @default(uuid())
+  name      String
+  email     String     @unique
+  password  String
+  Roles     UserRole[]
+  teacherId String?    @unique
+  Teacher   Teacher?   @relation(fields: [teacherId], references: [id])
 }
 
 enum Role {
   ADMIN
   COORDINATOR
   TEACHER
+}
+
+model Teacher {
+  id       String     @id @default(uuid())
+  name     String
+  email    String     @unique
+  Schedule Schedule[]
+  User     User?
+}
+
+model Course {
+  id           String     @id @default(uuid())
+  name         String
+  abbreviation String     @unique
+  Subject      Subject[]
+  Schedule     Schedule[]
+}
+
+model Subject {
+  id           String     @id @default(uuid())
+  name         String
+  courseId     String
+  Course       Course     @relation(fields: [courseId], references: [id])
+  Schedule     Schedule[]
+  abbreviation String     @unique
+}
+
+model Schedule {
+  id        String  @id @default(uuid())
+  teacherId String
+  subjectId String
+  courseId  String
+  dayOfWeek Int
+  startTime String
+  endTime   String
+  Teacher   Teacher @relation(fields: [teacherId], references: [id])
+  Subject   Subject @relation(fields: [subjectId], references: [id])
+  Course    Course  @relation(fields: [courseId], references: [id])
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  role   Role
+  User   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, role])
 }
